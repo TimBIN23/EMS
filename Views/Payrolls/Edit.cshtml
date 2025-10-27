@@ -1,0 +1,129 @@
+﻿@model EM.Models.Payroll
+
+@{
+    ViewData["Title"] = "Edit Payroll Record";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-pencil me-2"></i>Edit Payroll Record</h2>
+    <a asp-action="Index" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i>Back to List
+    </a>
+</div>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="card">
+    <div class="card-header bg-warning text-dark">
+        <h5 class="card-title mb-0"><i class="bi bi-calculator me-2"></i>Edit Payroll Information</h5>
+    </div>
+    <div class="card-body">
+        <form asp-action="Edit">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Id" />
+
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label asp-for="EmployeeId" class="form-label fw-bold">Employee *</label>
+                        <select asp-for="EmployeeId" class="form-select" asp-items="ViewBag.EmployeeId">
+                            <option value="">Select Employee</option>
+                        </select>
+                        <span asp-validation-for="EmployeeId" class="text-danger small"></span>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group mb-3">
+                        <label asp-for="Month" class="form-label fw-bold">Month *</label>
+                        <select asp-for="Month" class="form-select">
+                            <option value="">Select Month</option>
+                            <option value="1">January</option>
+                            <option value="2">February</option>
+                            <option value="3">March</option>
+                            <option value="4">April</option>
+                            <option value="5">May</option>
+                            <option value="6">June</option>
+                            <option value="7">July</option>
+                            <option value="8">August</option>
+                            <option value="9">September</option>
+                            <option value="10">October</option>
+                            <option value="11">November</option>
+                            <option value="12">December</option>
+                        </select>
+                        <span asp-validation-for="Month" class="text-danger small"></span>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group mb-3">
+                        <label asp-for="Year" class="form-label fw-bold">Year *</label>
+                        <input asp-for="Year" class="form-control" type="number" min="2000" max="2100" />
+                        <span asp-validation-for="Year" class="text-danger small"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group mb-3">
+                        <label asp-for="Salary" class="form-label fw-bold">Salary *</label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input asp-for="Salary" class="form-control" type="number" step="0.01" min="0" />
+                        </div>
+                        <span asp-validation-for="Salary" class="text-danger small"></span>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group mb-3">
+                        <label asp-for="Bonus" class="form-label fw-bold">Bonus</label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input asp-for="Bonus" class="form-control" type="number" step="0.01" min="0" />
+                        </div>
+                        <span asp-validation-for="Bonus" class="text-danger small"></span>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group mb-3">
+                        <label asp-for="Deductions" class="form-label fw-bold">Deductions</label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input asp-for="Deductions" class="form-control" type="number" step="0.01" min="0" />
+                        </div>
+                        <span asp-validation-for="Deductions" class="text-danger small"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="alert alert-success mt-3">
+                <i class="bi bi-calculator me-2"></i>
+                <strong>Net Pay:</strong> $@Model.NetPay.ToString("N2")
+                <br>
+                <small class="text-muted">Calculated as Salary + Bonus - Deductions</small>
+            </div>
+
+            <div class="form-group mt-4">
+                <button type="submit" class="btn btn-warning me-2">
+                    <i class="bi bi-check-circle me-1"></i>Update Payroll Record
+                </button>
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    <i class="bi bi-x-circle me-1"></i>Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

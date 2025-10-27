@@ -1,0 +1,154 @@
+﻿@model EM.Models.User
+
+@{
+    ViewData["Title"] = "Edit User Account";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-pencil me-2"></i>Edit User Account</h2>
+    <a asp-action="Index" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i>Back to List
+    </a>
+</div>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle me-2"></i>@TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="card">
+    <div class="card-header bg-warning text-dark">
+        <h5 class="card-title mb-0"><i class="bi bi-person-gear me-2"></i>Edit User Account</h5>
+    </div>
+    <div class="card-body">
+        <form asp-action="Edit" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Id" />
+
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label asp-for="EmployeeId" class="form-label fw-bold">Employee *</label>
+                        <select asp-for="EmployeeId" class="form-select" asp-items="ViewBag.EmployeeId" required>
+                            <option value="">Select Employee</option>
+                        </select>
+                        <span asp-validation-for="EmployeeId" class="text-danger small"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label asp-for="Username" class="form-label fw-bold">Username *</label>
+                        <input asp-for="Username" class="form-control" required />
+                        <span asp-validation-for="Username" class="text-danger small"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label for="NewPassword" class="form-label fw-bold">New Password</label>
+                        <input type="password" id="NewPassword" name="NewPassword" class="form-control" placeholder="Leave blank to keep current password" />
+                        <small class="form-text text-muted">Leave blank if you don't want to change the password.</small>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label for="ConfirmNewPassword" class="form-label fw-bold">Confirm New Password</label>
+                        <input type="password" id="ConfirmNewPassword" name="ConfirmNewPassword" class="form-control" placeholder="Confirm new password" />
+                        <span id="confirmPasswordError" class="text-danger small"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Role" class="form-label fw-bold">Role *</label>
+                <select asp-for="Role" class="form-select" required>
+                    <option value="">Select Role</option>
+                    <option value="Admin">Admin</option>
+                    <option value="Manager">Manager</option>
+                    <option value="HR">HR</option>
+                    <option value="User">User</option>
+                </select>
+                <span asp-validation-for="Role" class="text-danger small"></span>
+            </div>
+
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle me-2"></i>
+                <strong>Current Password Hash:</strong>
+                <code class="small">@Model.PasswordHash?.Substring(0, Math.Min(20, Model.PasswordHash?.Length ?? 0))...</code>
+                <br>
+                <small class="text-muted">This will be preserved unless you enter a new password above.</small>
+            </div>
+
+            <div class="form-group mt-4">
+                <button type="submit" class="btn btn-warning me-2" id="submitButton">
+                    <i class="bi bi-check-circle me-1"></i>Update
+                </button>
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    <i class="bi bi-x-circle me-1"></i>Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const newPasswordInput = document.getElementById('NewPassword');
+            const confirmNewPasswordInput = document.getElementById('ConfirmNewPassword');
+            const confirmPasswordError = document.getElementById('confirmPasswordError');
+            const submitButton = document.getElementById('submitButton');
+
+            function validatePassword() {
+                const newPassword = newPasswordInput.value;
+                const confirmNewPassword = confirmNewPasswordInput.value;
+
+                if (newPassword === '' && confirmNewPassword === '') {
+                    confirmPasswordError.textContent = '';
+                    submitButton.disabled = false;
+                    return;
+                }
+
+                if (newPassword !== confirmNewPassword) {
+                    confirmPasswordError.textContent = 'Passwords do not match.';
+                    submitButton.disabled = true;
+                } else {
+                    confirmPasswordError.textContent = '';
+                    submitButton.disabled = false;
+                }
+            }
+
+            newPasswordInput.addEventListener('input', validatePassword);
+            confirmNewPasswordInput.addEventListener('input', validatePassword);
+
+            // Form submission handler for debugging
+            const form = document.querySelector('form');
+            form.addEventListener('submit', function(e) {
+                console.log('Form submitted');
+                console.log('Username:', document.getElementById('Username').value);
+                console.log('EmployeeId:', document.getElementById('EmployeeId').value);
+                console.log('Role:', document.getElementById('Role').value);
+                console.log('NewPassword:', newPasswordInput.value);
+            });
+        });
+    </script>
+}

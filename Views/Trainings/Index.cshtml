@@ -1,0 +1,163 @@
+﻿@model IEnumerable<EM.Models.Training>
+
+@{
+    ViewData["Title"] = "Training Management";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-mortarboard me-2"></i>Training Management</h2>
+    <a asp-action="Create" class="btn btn-primary">
+        <i class="bi bi-plus-circle me-1"></i>Add Training
+    </a>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle me-2"></i>@TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="card">
+    @* <div class="card-header bg-primary text-white">
+        <h5 class="card-title mb-0"><i class="bi bi-list-ul me-2"></i>Training Records</h5>
+    </div> *@
+    <div class="card-body">
+        @if (Model.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Employee</th>
+                            <th>Training Name</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th>Duration</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            var duration = (item.EndDate - item.StartDate).TotalDays + 1;
+                            var durationDisplay = $"{duration} day{(duration != 1 ? "s" : "")}";
+                            var isUpcoming = item.StartDate > DateTime.Today;
+                            var isOngoing = item.StartDate <= DateTime.Today && item.EndDate >= DateTime.Today;
+                            var isCompleted = item.EndDate < DateTime.Today;
+
+                            <tr>
+                                <td>@item.Id</td>
+                                <td>
+                                    <strong>@item.Employee?.FirstName @item.Employee?.LastName</strong>
+                                    <br>
+                                    <small class="text-muted">@item.Employee?.Department</small>
+                                </td>
+                                <td>
+                                    <div class="fw-bold">@item.TrainingName</div>
+                                    @if (item.TrainingName?.Length > 50)
+                                    {
+                                        <small class="text-muted">@item.TrainingName?.Substring(0, 50)...</small>
+                                    }
+                                </td>
+                                <td>@item.StartDate.ToString("MMM dd, yyyy")</td>
+                                <td>@item.EndDate.ToString("MMM dd, yyyy")</td>
+                                <td>
+                                    <span class="badge bg-secondary">@durationDisplay</span>
+                                </td>
+                                <td>
+                                    @{
+                                        var statusClass = item.Status?.ToLower() switch
+                                        {
+                                            "completed" => "bg-success",
+                                            "in-progress" => "bg-info",
+                                            "scheduled" => "bg-warning",
+                                            "cancelled" => "bg-danger",
+                                            _ => "bg-secondary"
+                                        };
+                                        var statusIcon = item.Status?.ToLower() switch
+                                        {
+                                            "completed" => "bi-check-circle",
+                                            "in-progress" => "bi-play-circle",
+                                            "scheduled" => "bi-clock",
+                                            "cancelled" => "bi-x-circle",
+                                            _ => "bi-question-circle"
+                                        };
+                                    }
+                                    <span class="badge @statusClass">
+                                        <i class="bi @statusIcon me-1"></i>@item.Status
+                                    </span>
+                                    @if (isUpcoming)
+                                    {
+                                        <br>
+                            
+                                        <small class="text-warning">Upcoming</small>
+                                    }
+                                    else if (isOngoing)
+                                    {
+                                        <br>
+                            
+                                        <small class="text-info">Ongoing</small>
+                                    }
+                                    else if (isCompleted)
+                                    {
+                                        <br>
+                            
+                                        <small class="text-success">Completed</small>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-info btn-sm" title="View Details">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning btn-sm" title="Edit">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger btn-sm" title="Delete">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-4">
+                <i class="bi bi-mortarboard display-1 text-muted"></i>
+                <h4 class="text-muted mt-3">No Training Records Found</h4>
+                <p class="text-muted">Start tracking employee training by adding your first record.</p>
+                <a asp-action="Create" class="btn btn-primary btn-lg">
+                    <i class="bi bi-plus-circle me-2"></i>Add First Record
+                </a>
+            </div>
+        }
+    </div>
+    @if (Model.Any())
+    {
+        <div class="card-footer text-muted">
+            @{
+                var completedCount = Model.Count(t => t.Status?.ToLower() == "completed");
+                var inProgressCount = Model.Count(t => t.Status?.ToLower() == "in-progress");
+                var scheduledCount = Model.Count(t => t.Status?.ToLower() == "scheduled");
+                var upcomingCount = Model.Count(t => t.StartDate > DateTime.Today);
+            }
+            <small>Total: @Model.Count() | Completed: @completedCount | In Progress: @inProgressCount | Scheduled: @scheduledCount | Upcoming: @upcomingCount</small>
+        </div>
+    }
+</div>

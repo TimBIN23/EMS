@@ -1,0 +1,142 @@
+﻿@model IEnumerable<EM.Models.Payroll>
+
+@{
+    ViewData["Title"] = "Payroll Management";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-cash-coin me-2"></i>Payroll Management</h2>
+    <a asp-action="Create" class="btn btn-primary">
+        <i class="bi bi-plus-circle me-1"></i>Add Payroll
+    </a>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle me-2"></i>@TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="card">
+    @* <div class="card-header bg-primary text-white">
+        <h5 class="card-title mb-0"><i class="bi bi-list-ul me-2"></i>Payroll Records</h5>
+    </div> *@
+    <div class="card-body">
+        @if (Model.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Employee</th>
+                            <th>Period</th>
+                            <th>Salary</th>
+                            <th>Bonus</th>
+                            <th>Deductions</th>
+                            <th>Net Pay</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            var period = new DateTime(item.Year, item.Month, 1).ToString("MMM yyyy");
+
+                            <tr>
+                                <td>@item.Id</td>
+                                <td>
+                                    <strong>@item.Employee?.FirstName @item.Employee?.LastName</strong>
+                                    <br>
+                                    <small class="text-muted">@item.Employee?.Department</small>
+                                </td>
+                                <td>
+                                    <span class="badge bg-info">@period</span>
+                                </td>
+                                <td>
+                                    <span class="text-success fw-bold">$@item.Salary.ToString("N2")</span>
+                                </td>
+                                <td>
+                                    @if (item.Bonus > 0)
+                                    {
+                                        <span class="text-warning">$@item.Bonus.ToString("N2")</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">$0.00</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (item.Deductions > 0)
+                                    {
+                                        <span class="text-danger">$@item.Deductions.ToString("N2")</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">$0.00</span>
+                                    }
+                                </td>
+                                <td>
+                                    <span class="fw-bold text-primary">$@item.NetPay.ToString("N2")</span>
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-info btn-sm" title="View Details">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning btn-sm" title="Edit">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger btn-sm" title="Delete">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-4">
+                <i class="bi bi-cash display-1 text-muted"></i>
+                <h4 class="text-muted mt-3">No Payroll Records Found</h4>
+                <p class="text-muted">Start managing payroll by adding your first record.</p>
+                <a asp-action="Create" class="btn btn-primary btn-lg">
+                    <i class="bi bi-plus-circle me-2"></i>Add First Record
+                </a>
+            </div>
+        }
+    </div>
+    @if (Model.Any())
+    {
+        <div class="card-footer text-muted">
+            @{
+                var totalSalary = Model.Sum(p => p.Salary);
+                var totalBonus = Model.Sum(p => p.Bonus);
+                var totalDeductions = Model.Sum(p => p.Deductions);
+                var totalNetPay = Model.Sum(p => p.NetPay);
+                var currentYear = DateTime.Today.Year;
+                var currentYearRecords = Model.Count(p => p.Year == currentYear);
+            }
+            <small>
+                Total Records: @Model.Count() |
+                Current Year: @currentYearRecords |
+                Total Paid: $@totalNetPay.ToString("N2") |
+                YTD: $@Model.Where(p => p.Year == currentYear).Sum(p => p.NetPay).ToString("N2")
+            </small>
+        </div>
+    }
+</div>

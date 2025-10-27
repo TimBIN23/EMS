@@ -1,0 +1,123 @@
+﻿@model EM.Models.User
+
+@{
+    ViewData["Title"] = "Create User Account";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-person-plus me-2"></i>Create User Account</h2>
+    <a asp-action="Index" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i>Back to List
+    </a>
+</div>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="card">
+    <div class="card-header bg-primary text-white">
+        <h5 class="card-title mb-0"><i class="bi bi-person-badge me-2"></i>User Account Information</h5>
+    </div>
+    <div class="card-body">
+        <form asp-action="Create">
+            @Html.AntiForgeryToken()
+
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label asp-for="EmployeeId" class="form-label fw-bold">Employee *</label>
+                        <select asp-for="EmployeeId" class="form-select" asp-items="ViewBag.EmployeeId">
+                            <option value="">Select Employee</option>
+                        </select>
+                        <span asp-validation-for="EmployeeId" class="text-danger small"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label asp-for="Username" class="form-label fw-bold">Username *</label>
+                        <input asp-for="Username" class="form-control" placeholder="Enter username" />
+                        <span asp-validation-for="Username" class="text-danger small"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label for="Password" class="form-label fw-bold">Password *</label>
+                        <input type="password" id="Password" name="Password" class="form-control" placeholder="Enter password" />
+                        <span class="text-danger small" data-valmsg-for="Password" data-valmsg-replace="true"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label for="ConfirmPassword" class="form-label fw-bold">Confirm Password *</label>
+                        <input type="password" id="ConfirmPassword" name="ConfirmPassword" class="form-control" placeholder="Confirm password" />
+                        <span id="confirmPasswordError" class="text-danger small"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Role" class="form-label fw-bold">Role *</label>
+                <select asp-for="Role" class="form-select">
+                    <option value="">Select Role</option>
+                    <option value="Admin">Admin</option>
+                    <option value="Manager">Manager</option>
+                    <option value="HR">HR</option>
+                    <option value="User">User</option>
+                </select>
+                <span asp-validation-for="Role" class="text-danger small"></span>
+            </div>
+
+            <div class="form-group mt-4">
+                <button type="submit" class="btn btn-success me-2">Create User Account</button>
+                <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const passwordInput = document.getElementById('Password');
+            const confirmPasswordInput = document.getElementById('ConfirmPassword');
+            const confirmPasswordError = document.getElementById('confirmPasswordError');
+            const submitButton = document.getElementById('submitButton');
+
+            function validatePassword() {
+                const password = passwordInput.value;
+                const confirmPassword = confirmPasswordInput.value;
+
+                if (confirmPassword === '') {
+                    confirmPasswordError.textContent = '';
+                    submitButton.disabled = false;
+                    return;
+                }
+
+                if (password !== confirmPassword) {
+                    confirmPasswordError.textContent = 'Passwords do not match.';
+                    submitButton.disabled = true;
+                } else {
+                    confirmPasswordError.textContent = '';
+                    submitButton.disabled = false;
+                }
+            }
+
+            passwordInput.addEventListener('input', validatePassword);
+            confirmPasswordInput.addEventListener('input', validatePassword);
+        });
+    </script>
+}

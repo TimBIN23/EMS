@@ -1,0 +1,127 @@
+﻿@model IEnumerable<EM.Models.Leave>
+
+@{
+    ViewData["Title"] = "Leave Management";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-calendar-event me-2"></i>Leave Management</h2>
+    <a asp-action="Create" class="btn btn-primary">
+        <i class="bi bi-plus-circle me-1"></i>Request Leave
+    </a>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle me-2"></i>@TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="card">
+    @* <div class="card-header bg-primary text-white">
+        <h5 class="card-title mb-0"><i class="bi bi-list-ul me-2"></i>Leave Requests</h5>
+    </div> *@
+    <div class="card-body">
+        @if (Model.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Employee</th>
+                            <th>Leave Type</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th>Duration</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            var duration = (item.EndDate - item.StartDate).TotalDays + 1;
+                            var durationDisplay = $"{duration} day{(duration != 1 ? "s" : "")}";
+
+                            <tr>
+                                <td>@item.Id</td>
+                                <td>
+                                    <strong>@item.Employee?.FirstName @item.Employee?.LastName</strong>
+                                    <br>
+                                    <small class="text-muted">@item.Employee?.Department</small>
+                                </td>
+                                <td>
+                                    <span class="badge bg-info">@item.LeaveType</span>
+                                </td>
+                                <td>@item.StartDate.ToString("MMM dd, yyyy")</td>
+                                <td>@item.EndDate.ToString("MMM dd, yyyy")</td>
+                                <td>
+                                    <span class="badge bg-secondary">@durationDisplay</span>
+                                </td>
+                                <td>
+                                    @{
+                                        var statusClass = item.Status?.ToLower() switch
+                                        {
+                                            "approved" => "bg-success",
+                                            "pending" => "bg-warning",
+                                            "rejected" => "bg-danger",
+                                            "cancelled" => "bg-secondary",
+                                            _ => "bg-secondary"
+                                        };
+                                    }
+                                    <span class="badge @statusClass">@item.Status</span>
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-info btn-sm" title="View Details">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning btn-sm" title="Edit">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger btn-sm" title="Delete">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-4">
+                <i class="bi bi-calendar-x display-1 text-muted"></i>
+                <h4 class="text-muted mt-3">No Leave Requests Found</h4>
+                <p class="text-muted">Start by creating your first leave request.</p>
+                <a asp-action="Create" class="btn btn-primary btn-lg">
+                    <i class="bi bi-plus-circle me-2"></i>Create First Request
+                </a>
+            </div>
+        }
+    </div>
+    @if (Model.Any())
+    {
+        <div class="card-footer text-muted">
+            @{
+                var pendingCount = Model.Count(l => l.Status?.ToLower() == "pending");
+                var approvedCount = Model.Count(l => l.Status?.ToLower() == "approved");
+                var rejectedCount = Model.Count(l => l.Status?.ToLower() == "rejected");
+            }
+            <small>Total: @Model.Count() | Pending: @pendingCount | Approved: @approvedCount | Rejected: @rejectedCount</small>
+        </div>
+    }
+</div>

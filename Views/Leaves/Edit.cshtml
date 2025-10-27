@@ -1,0 +1,114 @@
+﻿@model EM.Models.Leave
+
+@{
+    ViewData["Title"] = "Edit Leave Request";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-pencil me-2"></i>Edit Leave Request</h2>
+    <a asp-action="Index" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i>Back to List
+    </a>
+</div>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="card">
+    <div class="card-header bg-warning text-dark">
+        <h5 class="card-title mb-0"><i class="bi bi-person-gear me-2"></i>Edit Leave Request</h5>
+    </div>
+    <div class="card-body">
+        <form asp-action="Edit">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Id" />
+
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label asp-for="EmployeeId" class="form-label fw-bold">Employee *</label>
+                        <select asp-for="EmployeeId" class="form-select" asp-items="ViewBag.EmployeeId">
+                            <option value="">Select Employee</option>
+                        </select>
+                        <span asp-validation-for="EmployeeId" class="text-danger small"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label asp-for="LeaveType" class="form-label fw-bold">Leave Type *</label>
+                        <select asp-for="LeaveType" class="form-select">
+                            <option value="">Select Leave Type</option>
+                            <option value="Vacation">Vacation</option>
+                            <option value="Sick Leave">Sick Leave</option>
+                            <option value="Personal">Personal</option>
+                            <option value="Maternity">Maternity</option>
+                            <option value="Paternity">Paternity</option>
+                            <option value="Bereavement">Bereavement</option>
+                            <option value="Emergency">Emergency</option>
+                        </select>
+                        <span asp-validation-for="LeaveType" class="text-danger small"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label asp-for="StartDate" class="form-label fw-bold">Start Date *</label>
+                        <input asp-for="StartDate" class="form-control" type="date" />
+                        <span asp-validation-for="StartDate" class="text-danger small"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label asp-for="EndDate" class="form-label fw-bold">End Date *</label>
+                        <input asp-for="EndDate" class="form-control" type="date" />
+                        <span asp-validation-for="EndDate" class="text-danger small"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Status" class="form-label fw-bold">Status *</label>
+                <select asp-for="Status" class="form-select">
+                    <option value="Pending">Pending</option>
+                    <option value="Approved">Approved</option>
+                    <option value="Rejected">Rejected</option>
+                    <option value="Cancelled">Cancelled</option>
+                </select>
+                <span asp-validation-for="Status" class="text-danger small"></span>
+            </div>
+
+            <div class="alert alert-info mt-3">
+                <i class="bi bi-info-circle me-2"></i>
+                @{
+                    var duration = (Model.EndDate - Model.StartDate).TotalDays + 1;
+                    var durationDisplay = $"{duration} day{(duration != 1 ? "s" : "")}";
+                }
+                Leave Duration: @durationDisplay
+            </div>
+
+            <div class="form-group mt-4">
+                <button type="submit" class="btn btn-warning me-2">
+                    <i class="bi bi-check-circle me-1"></i>Update Leave Request
+                </button>
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    <i class="bi bi-x-circle me-1"></i>Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

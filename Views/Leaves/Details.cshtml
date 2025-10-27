@@ -1,0 +1,104 @@
+﻿@model EM.Models.Leave
+
+@{
+    ViewData["Title"] = "Leave Request Details";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-calendar-event me-2"></i>Leave Request Details</h2>
+    <div>
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning me-2">
+            <i class="bi bi-pencil me-1"></i>Edit
+        </a>
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>Back to List
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="card-title mb-0"><i class="bi bi-person-lines-fill me-2"></i>Leave Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <dl class="row">
+                            <dt class="col-sm-4">Request ID:</dt>
+                            <dd class="col-sm-8">@Model.Id</dd>
+
+                            <dt class="col-sm-4">Employee:</dt>
+                            <dd class="col-sm-8">
+                                <strong>@Model.Employee?.FirstName @Model.Employee?.LastName</strong>
+                                <br>
+                                <small class="text-muted">@Model.Employee?.Department</small>
+                            </dd>
+
+                            <dt class="col-sm-4">Leave Type:</dt>
+                            <dd class="col-sm-8">
+                                <span class="badge bg-info">@Model.LeaveType</span>
+                            </dd>
+                        </dl>
+                    </div>
+                    <div class="col-md-6">
+                        <dl class="row">
+                            <dt class="col-sm-4">Start Date:</dt>
+                            <dd class="col-sm-8">@Model.StartDate.ToString("MMMM dd, yyyy")</dd>
+
+                            <dt class="col-sm-4">End Date:</dt>
+                            <dd class="col-sm-8">@Model.EndDate.ToString("MMMM dd, yyyy")</dd>
+
+                            <dt class="col-sm-4">Duration:</dt>
+                            <dd class="col-sm-8">
+                                @{
+                                    var duration = (Model.EndDate - Model.StartDate).TotalDays + 1;
+                                    var durationDisplay = $"{duration} day{(duration != 1 ? "s" : "")}";
+                                }
+                                <span class="badge bg-secondary">@durationDisplay</span>
+                            </dd>
+
+                            <dt class="col-sm-4">Status:</dt>
+                            <dd class="col-sm-8">
+                                @{
+                                    var statusClass = Model.Status?.ToLower() switch
+                                    {
+                                        "approved" => "bg-success",
+                                        "pending" => "bg-warning",
+                                        "rejected" => "bg-danger",
+                                        "cancelled" => "bg-secondary",
+                                        _ => "bg-secondary"
+                                    };
+                                }
+                                <span class="badge @statusClass">@Model.Status</span>
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="card-title mb-0"><i class="bi bi-calendar-range me-2"></i>Date Summary</h5>
+            </div>
+            <div class="card-body text-center">
+                @{
+                    var totalDays = (Model.EndDate - Model.StartDate).TotalDays + 1;
+                    var businessDays = totalDays; // Simplified calculation
+                }
+                <div class="mb-3">
+                    <i class="bi bi-calendar-check display-4 text-primary"></i>
+                </div>
+                <h3>@totalDays</h3>
+                <p class="text-muted">Total Days Requested</p>
+                <hr>
+                <small class="text-muted">
+                    @Model.StartDate.ToString("MMM dd") - @Model.EndDate.ToString("MMM dd, yyyy")
+                </small>
+            </div>
+        </div>
+    </div>
+</div>

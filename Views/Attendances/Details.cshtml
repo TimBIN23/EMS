@@ -1,0 +1,128 @@
+﻿@model EM.Models.Attendance
+
+@{
+    ViewData["Title"] = "Attendance Details";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-calendar-check me-2"></i>Attendance Details</h2>
+    <div>
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning me-2">
+            <i class="bi bi-pencil me-1"></i>Edit
+        </a>
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>Back to List
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="card-title mb-0"><i class="bi bi-clock-history me-2"></i>Attendance Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <dl class="row">
+                            <dt class="col-sm-4">Record ID:</dt>
+                            <dd class="col-sm-8">@Model.Id</dd>
+
+                            <dt class="col-sm-4">Employee:</dt>
+                            <dd class="col-sm-8">
+                                <strong>@Model.Employee?.FirstName @Model.Employee?.LastName</strong>
+                                <br>
+                                <small class="text-muted">@Model.Employee?.Department</small>
+                            </dd>
+
+                            <dt class="col-sm-4">Date:</dt>
+                            <dd class="col-sm-8">@Model.Date.ToString("MMMM dd, yyyy")</dd>
+                        </dl>
+                    </div>
+                    <div class="col-md-6">
+                        <dl class="row">
+                            <dt class="col-sm-4">Check In:</dt>
+                            <dd class="col-sm-8">
+                                <span class="badge bg-success">@Model.CheckInTime.ToString(@"hh\:mm")</span>
+                            </dd>
+
+                            <dt class="col-sm-4">Check Out:</dt>
+                            <dd class="col-sm-8">
+                                @if (Model.CheckOutTime.HasValue)
+                                {
+                                    <span class="badge bg-danger">@Model.CheckOutTime.Value.ToString(@"hh\:mm")</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning">Not Checked Out</span>
+                                }
+                            </dd>
+
+                            <dt class="col-sm-4">Hours Worked:</dt>
+                            <dd class="col-sm-8">
+                                @if (Model.CheckOutTime.HasValue)
+                                {
+                                    var hoursWorked = (Model.CheckOutTime.Value - Model.CheckInTime).TotalHours;
+                                    <span class="badge bg-info">@hoursWorked.ToString("F1") hours</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">-</span>
+                                }
+                            </dd>
+
+                            <dt class="col-sm-4">Status:</dt>
+                            <dd class="col-sm-8">
+                                @{
+                                    var statusClass = Model.Status?.ToLower() switch
+                                    {
+                                        "present" => "bg-success",
+                                        "absent" => "bg-danger",
+                                        "late" => "bg-warning",
+                                        "half-day" => "bg-info",
+                                        _ => "bg-secondary"
+                                    };
+                                }
+                                <span class="badge @statusClass">@Model.Status</span>
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="card-title mb-0"><i class="bi bi-graph-up me-2"></i>Time Summary</h5>
+            </div>
+            <div class="card-body text-center">
+                @if (Model.CheckOutTime.HasValue)
+                {
+                    var hoursWorked = (Model.CheckOutTime.Value - Model.CheckInTime).TotalHours;
+                    <div class="mb-3">
+                        <i class="bi bi-clock display-4 text-primary"></i>
+                    </div>
+                    <h3>@hoursWorked.ToString("F1")h</h3>
+                    <p class="text-muted">Total Hours Worked</p>
+                    <hr>
+                    <small class="text-muted">
+                        @Model.CheckInTime.ToString(@"hh\:mm") - @Model.CheckOutTime.Value.ToString(@"hh\:mm")
+                    </small>
+                }
+                else
+                {
+                    <div class="mb-3">
+                        <i class="bi bi-clock-history display-4 text-warning"></i>
+                    </div>
+                    <h4>Still Working</h4>
+                    <p class="text-muted">Not checked out yet</p>
+                    <small class="text-muted">
+                        Checked in at @Model.CheckInTime.ToString(@"hh\:mm")
+                    </small>
+                }
+            </div>
+        </div>
+    </div>
+</div>

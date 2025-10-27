@@ -1,0 +1,191 @@
+﻿@model EM.Models.Payroll
+
+@{
+    ViewData["Title"] = "Create Payroll Record";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-cash-stack me-2"></i>Create Payroll Record</h2>
+    <a asp-action="Index" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i>Back to List
+    </a>
+</div>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="card">
+    <div class="card-header bg-primary text-white">
+        <h5 class="card-title mb-0"><i class="bi bi-calculator me-2"></i>Payroll Information</h5>
+    </div>
+    <div class="card-body">
+        <form asp-action="Create">
+            @Html.AntiForgeryToken()
+
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label asp-for="EmployeeId" class="form-label fw-bold">Employee *</label>
+                        <select asp-for="EmployeeId" class="form-select" asp-items="ViewBag.EmployeeId" id="employeeSelect">
+                            <option value="">Select Employee</option>
+                        </select>
+                        <span asp-validation-for="EmployeeId" class="text-danger small"></span>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group mb-3">
+                        <label asp-for="Month" class="form-label fw-bold">Month *</label>
+                        <select asp-for="Month" class="form-select">
+                            <option value="">Select Month</option>
+                            <option value="1">January</option>
+                            <option value="2">February</option>
+                            <option value="3">March</option>
+                            <option value="4">April</option>
+                            <option value="5">May</option>
+                            <option value="6">June</option>
+                            <option value="7">July</option>
+                            <option value="8">August</option>
+                            <option value="9">September</option>
+                            <option value="10">October</option>
+                            <option value="11">November</option>
+                            <option value="12">December</option>
+                        </select>
+                        <span asp-validation-for="Month" class="text-danger small"></span>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group mb-3">
+                        <label asp-for="Year" class="form-label fw-bold">Year *</label>
+                        <input asp-for="Year" class="form-control" type="number" min="2000" max="2100" />
+                        <span asp-validation-for="Year" class="text-danger small"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group mb-3">
+                        <label asp-for="Salary" class="form-label fw-bold">Salary *</label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input asp-for="Salary" class="form-control" type="number" step="0.01" min="0" />
+                        </div>
+                        <span asp-validation-for="Salary" class="text-danger small"></span>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group mb-3">
+                        <label asp-for="Bonus" class="form-label fw-bold">Bonus</label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input asp-for="Bonus" class="form-control" type="number" step="0.01" min="0" value="0" />
+                        </div>
+                        <span asp-validation-for="Bonus" class="text-danger small"></span>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group mb-3">
+                        <label asp-for="Deductions" class="form-label fw-bold">Deductions</label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input asp-for="Deductions" class="form-control" type="number" step="0.01" min="0" value="0" />
+                        </div>
+                        <span asp-validation-for="Deductions" class="text-danger small"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="alert alert-info mt-3">
+                <i class="bi bi-calculator me-2"></i>
+                <strong>Net Pay Calculation:</strong>
+                <span id="netPayCalculation">Salary + Bonus - Deductions = $0.00</span>
+            </div>
+
+            <div class="form-group mt-4">
+                <button type="submit" class="btn btn-success me-2">
+                    <i class="bi bi-check-circle me-1"></i>Create Payroll Record
+                </button>
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    <i class="bi bi-x-circle me-1"></i>Cancel
+                </a>
+            </div>
+
+            <div class="mt-3">
+                <small class="text-muted"><i class="bi bi-info-circle me-1"></i>Fields marked with * are required</small>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const salaryInput = document.getElementById('Salary');
+            const bonusInput = document.getElementById('Bonus');
+            const deductionsInput = document.getElementById('Deductions');
+            const netPayCalculation = document.getElementById('netPayCalculation');
+            const employeeSelect = document.getElementById('employeeSelect');
+            const yearInput = document.getElementById('Year');
+
+            function calculateNetPay() {
+                const salary = parseFloat(salaryInput.value) || 0;
+                const bonus = parseFloat(bonusInput.value) || 0;
+                const deductions = parseFloat(deductionsInput.value) || 0;
+                const netPay = salary + bonus - deductions;
+
+                netPayCalculation.textContent =
+                    `Salary ($${salary.toFixed(2)}) + Bonus ($${bonus.toFixed(2)}) - Deductions ($${deductions.toFixed(2)}) = $${netPay.toFixed(2)}`;
+
+                if (netPay < 0) {
+                    netPayCalculation.className = 'alert alert-danger mt-3';
+                } else {
+                    netPayCalculation.className = 'alert alert-info mt-3';
+                }
+            }
+
+            // Set current year as default
+            if (yearInput && !yearInput.value) {
+                const currentYear = new Date().getFullYear();
+                yearInput.value = currentYear;
+            }
+
+            // Set current month as default
+            const monthSelect = document.querySelector('select[name="Month"]');
+            if (monthSelect && !monthSelect.value) {
+                const currentMonth = new Date().getMonth() + 1;
+                monthSelect.value = currentMonth;
+            }
+
+            // Auto-fill salary from employee base salary
+            employeeSelect.addEventListener('change', function() {
+                const selectedOption = this.options[this.selectedIndex];
+                if (selectedOption.text.includes('Base:')) {
+                    const baseSalaryMatch = selectedOption.text.match(/Base: \$([\d,]+\.\d{2})/);
+                    if (baseSalaryMatch) {
+                        const baseSalary = baseSalaryMatch[1].replace(',', '');
+                        salaryInput.value = baseSalary;
+                        calculateNetPay();
+                    }
+                }
+            });
+
+            salaryInput.addEventListener('input', calculateNetPay);
+            bonusInput.addEventListener('input', calculateNetPay);
+            deductionsInput.addEventListener('input', calculateNetPay);
+
+            // Calculate initial net pay
+            calculateNetPay();
+        });
+    </script>
+}

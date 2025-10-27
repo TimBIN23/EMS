@@ -1,0 +1,125 @@
+﻿@model EM.Models.Payroll
+
+@{
+    ViewData["Title"] = "Payroll Record Details";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-cash-coin me-2"></i>Payroll Record Details</h2>
+    <div>
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning me-2">
+            <i class="bi bi-pencil me-1"></i>Edit
+        </a>
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>Back to List
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="card-title mb-0"><i class="bi bi-file-earmark-text me-2"></i>Payroll Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <dl class="row">
+                            <dt class="col-sm-4">Record ID:</dt>
+                            <dd class="col-sm-8">@Model.Id</dd>
+
+                            <dt class="col-sm-4">Employee:</dt>
+                            <dd class="col-sm-8">
+                                <strong>@Model.Employee?.FirstName @Model.Employee?.LastName</strong>
+                                <br>
+                                <small class="text-muted">@Model.Employee?.Department</small>
+                            </dd>
+
+                            <dt class="col-sm-4">Period:</dt>
+                            <dd class="col-sm-8">
+                                <span class="badge bg-info">@(new DateTime(Model.Year, Model.Month, 1).ToString("MMMM yyyy"))</span>
+                            </dd>
+                        </dl>
+                    </div>
+                    <div class="col-md-6">
+                        <dl class="row">
+                            <dt class="col-sm-4">Base Salary:</dt>
+                            <dd class="col-sm-8">
+                                <span class="text-success fw-bold">$@Model.Salary.ToString("N2")</span>
+                            </dd>
+
+                            <dt class="col-sm-4">Bonus:</dt>
+                            <dd class="col-sm-8">
+                                @if (Model.Bonus > 0)
+                                {
+                                    <span class="text-warning">$@Model.Bonus.ToString("N2")</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">$0.00</span>
+                                }
+                            </dd>
+
+                            <dt class="col-sm-4">Deductions:</dt>
+                            <dd class="col-sm-8">
+                                @if (Model.Deductions > 0)
+                                {
+                                    <span class="text-danger">$@Model.Deductions.ToString("N2")</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">$0.00</span>
+                                }
+                            </dd>
+
+                            <dt class="col-sm-4">Net Pay:</dt>
+                            <dd class="col-sm-8">
+                                <span class="fw-bold text-primary">$@Model.NetPay.ToString("N2")</span>
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h5 class="card-title mb-0"><i class="bi bi-graph-up me-2"></i>Payment Summary</h5>
+            </div>
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <i class="bi bi-cash-coin display-4 text-success"></i>
+                </div>
+                <h3 class="text-success">$@Model.NetPay.ToString("N2")</h3>
+                <p class="text-muted">Net Payment</p>
+                <hr>
+                <div class="row text-start">
+                    <div class="col-6">
+                        <small class="text-muted">Salary:</small>
+                        <br>
+                        <small class="fw-bold">$@Model.Salary.ToString("N2")</small>
+                    </div>
+                    <div class="col-6">
+                        <small class="text-muted">Bonus:</small>
+                        <br>
+                        <small class="fw-bold">$@Model.Bonus.ToString("N2")</small>
+                    </div>
+                </div>
+                <div class="row text-start mt-2">
+                    <div class="col-6">
+                        <small class="text-muted">Deductions:</small>
+                        <br>
+                        <small class="fw-bold text-danger">$@Model.Deductions.ToString("N2")</small>
+                    </div>
+                    <div class="col-6">
+                        <small class="text-muted">Period:</small>
+                        <br>
+                        <small class="fw-bold">@(new DateTime(Model.Year, Model.Month, 1).ToString("MMM yyyy"))</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

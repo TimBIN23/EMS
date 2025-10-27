@@ -1,0 +1,156 @@
+﻿@model IEnumerable<EM.Models.Performance>
+
+@{
+    ViewData["Title"] = "Performance Management";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-graph-up me-2"></i>Performance Management</h2>
+    <a asp-action="Create" class="btn btn-primary">
+        <i class="bi bi-plus-circle me-1"></i>Add Performance
+    </a>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle me-2"></i>@TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="card">
+    @* <div class="card-header bg-primary text-white">
+        <h5 class="card-title mb-0"><i class="bi bi-list-ul me-2"></i>Performance Reviews</h5>
+    </div> *@
+    <div class="card-body">
+        @if (Model.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Employee</th>
+                            <th>Review Date</th>
+                            <th>Score</th>
+                            <th>Rating</th>
+                            <th>Comments</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            var rating = item.Score switch
+                            {
+                                >= 4.5m => "Excellent",
+                                >= 4.0m => "Very Good",
+                                >= 3.5m => "Good",
+                                >= 3.0m => "Satisfactory",
+                                >= 2.0m => "Needs Improvement",
+                                _ => "Poor"
+                            };
+                            var scoreClass = item.Score switch
+                            {
+                                >= 4.0m => "bg-success",
+                                >= 3.0m => "bg-warning",
+                                _ => "bg-danger"
+                            };
+                            var ratingClass = item.Score switch
+                            {
+                                >= 4.0m => "text-success",
+                                >= 3.0m => "text-warning",
+                                _ => "text-danger"
+                            };
+
+                            <tr>
+                                <td>@item.Id</td>
+                                <td>
+                                    <strong>@item.Employee?.FirstName @item.Employee?.LastName</strong>
+                                    <br>
+                                    <small class="text-muted">@item.Employee?.Department</small>
+                                </td>
+                                <td>@item.ReviewDate.ToString("MMM dd, yyyy")</td>
+                                <td>
+                                    <span class="badge @scoreClass">@item.Score.ToString("0.0")</span>
+                                </td>
+                                <td>
+                                    <span class="fw-bold @ratingClass">@rating</span>
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(item.Comments))
+                                    {
+                                        if (item.Comments.Length > 50)
+                                        {
+                                            <span title="@item.Comments">@item.Comments.Substring(0, 50)...</span>
+                                        }
+                                        else
+                                        {
+                                            @item.Comments
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">No comments</span>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-info btn-sm" title="View Details">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning btn-sm" title="Edit">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger btn-sm" title="Delete">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-4">
+                <i class="bi bi-graph-up display-1 text-muted"></i>
+                <h4 class="text-muted mt-3">No Performance Records Found</h4>
+                <p class="text-muted">Start tracking employee performance by adding your first review.</p>
+                <a asp-action="Create" class="btn btn-primary btn-lg">
+                    <i class="bi bi-plus-circle me-2"></i>Add First Review
+                </a>
+            </div>
+        }
+    </div>
+    @if (Model.Any())
+    {
+        <div class="card-footer text-muted">
+            @{
+                var averageScore = Model.Average(p => p.Score);
+                var excellentCount = Model.Count(p => p.Score >= 4.5m);
+                var goodCount = Model.Count(p => p.Score >= 3.5m && p.Score < 4.5m);
+                var needsImprovementCount = Model.Count(p => p.Score < 3.0m);
+                var currentYearReviews = Model.Count(p => p.ReviewDate.Year == DateTime.Today.Year);
+            }
+            <small>
+                Total Reviews: @Model.Count() |
+                Average Score: @averageScore.ToString("0.0") |
+                Excellent: @excellentCount |
+                Good: @goodCount |
+                Needs Improvement: @needsImprovementCount
+            </small>
+        </div>
+    }
+</div>

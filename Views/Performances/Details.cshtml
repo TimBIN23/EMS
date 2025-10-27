@@ -1,0 +1,150 @@
+﻿@model EM.Models.Performance
+
+@{
+    ViewData["Title"] = "Performance Review Details";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-graph-up me-2"></i>Performance Review Details</h2>
+    <div>
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning me-2">
+            <i class="bi bi-pencil me-1"></i>Edit
+        </a>
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>Back to List
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="card-title mb-0"><i class="bi bi-clipboard-data me-2"></i>Performance Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <dl class="row">
+                            <dt class="col-sm-4">Review ID:</dt>
+                            <dd class="col-sm-8">@Model.Id</dd>
+
+                            <dt class="col-sm-4">Employee:</dt>
+                            <dd class="col-sm-8">
+                                <strong>@Model.Employee?.FirstName @Model.Employee?.LastName</strong>
+                                <br>
+                                <small class="text-muted">@Model.Employee?.Department</small>
+                            </dd>
+
+                            <dt class="col-sm-4">Review Date:</dt>
+                            <dd class="col-sm-8">@Model.ReviewDate.ToString("MMMM dd, yyyy")</dd>
+                        </dl>
+                    </div>
+                    <div class="col-md-6">
+                        <dl class="row">
+                            <dt class="col-sm-4">Score:</dt>
+                            <dd class="col-sm-8">
+                                @{
+                                    var scoreClass = Model.Score switch
+                                    {
+                                        >= 4.0m => "bg-success",
+                                        >= 3.0m => "bg-warning",
+                                        _ => "bg-danger"
+                                    };
+                                    var rating = Model.Score switch
+                                    {
+                                        >= 4.5m => "Excellent",
+                                        >= 4.0m => "Very Good",
+                                        >= 3.5m => "Good",
+                                        >= 3.0m => "Satisfactory",
+                                        >= 2.0m => "Needs Improvement",
+                                        _ => "Poor"
+                                    };
+                                    var ratingClass = Model.Score switch
+                                    {
+                                        >= 4.0m => "text-success",
+                                        >= 3.0m => "text-warning",
+                                        _ => "text-danger"
+                                    };
+                                }
+                                <span class="badge @scoreClass">@Model.Score.ToString("0.0")/5.0</span>
+                                <br>
+                                <span class="fw-bold @ratingClass">@rating</span>
+                            </dd>
+
+                            <dt class="col-sm-4">Days Since:</dt>
+                            <dd class="col-sm-8">
+                                @{
+                                    var daysSince = (DateTime.Today - Model.ReviewDate).Days;
+                                    var daysSinceDisplay = daysSince == 0 ? "Today" : $"{daysSince} day{(daysSince != 1 ? "s" : "")} ago";
+                                    var daysSinceClass = daysSince <= 30 ? "bg-success" : daysSince <= 90 ? "bg-warning" : "bg-danger";
+                                }
+                                <span class="badge @daysSinceClass">@daysSinceDisplay</span>
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+
+                @if (!string.IsNullOrEmpty(Model.Comments))
+                {
+                    <div class="mt-4">
+                        <h6><i class="bi bi-chat-left-text me-2"></i>Comments & Feedback</h6>
+                        <div class="card">
+                            <div class="card-body bg-light">
+                                <p class="mb-0">@Model.Comments</p>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h5 class="card-title mb-0"><i class="bi bi-speedometer2 me-2"></i>Performance Summary</h5>
+            </div>
+            <div class="card-body text-center">
+                @{
+                    var percentage = ((Model.Score - 1) / 4) * 100;
+                    var progressClass = Model.Score switch
+                    {
+                        >= 4.0m => "bg-success",
+                        >= 3.0m => "bg-warning",
+                        _ => "bg-danger"
+                    };
+                    var iconClass = Model.Score switch
+                    {
+                        >= 4.0m => "bi-emoji-smile text-success",
+                        >= 3.0m => "bi-emoji-neutral text-warning",
+                        _ => "bi-emoji-frown text-danger"
+                    };
+                }
+                <div class="mb-3">
+                    <i class="bi @iconClass display-4"></i>
+                </div>
+                <h2 class="@ratingClass">@Model.Score.ToString("0.0")</h2>
+                <p class="text-muted">Performance Score</p>
+                <div class="progress mb-2" style="height: 20px;">
+                    <div class="progress-bar @progressClass" role="progressbar" style="width: @percentage%">
+                        @percentage.ToString("0")%
+                    </div>
+                </div>
+                <small class="text-muted">@rating</small>
+                <hr>
+                <div class="row text-start">
+                    <div class="col-6">
+                        <small class="text-muted">Review Date:</small>
+                        <br>
+                        <small class="fw-bold">@Model.ReviewDate.ToString("MMM yyyy")</small>
+                    </div>
+                    <div class="col-6">
+                        <small class="text-muted">Employee:</small>
+                        <br>
+                        <small class="fw-bold">@Model.Employee?.FirstName</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
